@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'email_login_form.dart';
 import 'phone_login_form.dart';
+import 'google_login_form.dart';
 import 'login_header.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
+  @override State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool _isEmailLogin = true; // Toggle between email and phone login
+  bool _isEmail = true;
   bool _loading = false;
 
-  void setLoading(bool value) => setState(() => _loading = value);
+  void _setLoading(bool v) => setState(() => _loading = v);
 
   @override
   Widget build(BuildContext context) {
@@ -26,37 +25,29 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               children: [
                 const LoginHeader(),
-
                 const SizedBox(height: 20),
-                // Toggle switch
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text("Email/Password"),
                     Switch(
-                      value: !_isEmailLogin,
-                      onChanged: (value) {
-                        setState(() {
-                          _isEmailLogin = !value;
-                        });
-                      },
+                      value: !_isEmail,
+                      onChanged: (v) => setState(() => _isEmail = !v),
                     ),
                     const Text("Phone"),
                   ],
                 ),
                 const SizedBox(height: 20),
-                // Show form based on toggle
-                _isEmailLogin
-                    ? EmailLoginForm(setLoading: setLoading)
-                    : PhoneLoginForm(setLoading: setLoading),
+                _isEmail
+                    ? EmailLoginForm(setLoading: _setLoading)
+                    : PhoneLoginForm(setLoading: _setLoading),
+
+                GoogleLoginForm(setLoading: _setLoading),
               ],
             ),
           ),
           if (_loading)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(child: CircularProgressIndicator()),
-            ),
+            Container(color: Colors.black54, child: const Center(child: CircularProgressIndicator())),
         ],
       ),
     );

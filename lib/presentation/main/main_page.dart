@@ -93,7 +93,7 @@ class MainPage extends StatelessWidget {
         ),
         Center(
           child: ElevatedButton(
-            onPressed: () => context.go('/'),
+            onPressed: () => context.go('/login'),
             child: const Text('Back to Login page'),
           ),
         ),
