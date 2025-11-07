@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'email_login_form.dart';
-import 'phone_login_form.dart';
-import 'google_login_form.dart';
-import 'login_header.dart';
+import 'widgets/email_login_form.dart';
+import 'widgets/phone_login_form.dart';
+import 'widgets/google_login_form.dart';
+import 'widgets/login_header.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

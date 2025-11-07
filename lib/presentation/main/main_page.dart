@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../data/auth/auth_service.dart';
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
@@ -93,8 +94,8 @@ class MainPage extends StatelessWidget {
         ),
         Center(
           child: ElevatedButton(
-            onPressed: () => context.go('/login'),
-            child: const Text('Back to Login page'),
+            onPressed: () => AuthService.instance.signOut(),
+            child: const Text('Sign out'),
           ),
         ),
         ],
