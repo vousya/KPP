@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
 
-import 'widgets/shopping_service.dart';
+import '../../../widgets/main_header.dart';
+
 import 'widgets/progress_bar.dart';
 import 'widgets/shopping_controls.dart';
 import 'widgets/shopping_item_card.dart';
 
-import '../../widgets/main_header.dart';
+import 'widgets/shopping_item.dart';
 
+class ShoppingListPage extends StatelessWidget {
+  final String listId;
+  final String listTitle;
+  final List<ShoppingItem> items;
 
-class MainPage extends StatelessWidget {
-  const MainPage({super.key});
+  const ShoppingListPage({
+    super.key,
+    required this.listId,
+    required this.listTitle,
+    required this.items,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final items = ShoppingService().getItems();
-
     return Scaffold(
-      appBar: const MainHeader(),
+      appBar: MainHeader(),
 
       body: Column(
         children: [

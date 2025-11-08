@@ -12,7 +12,7 @@ class MainHeader extends StatelessWidget implements PreferredSizeWidget {
 
       // LOGO → /main
       leading: InkWell(
-        onTap: () => context.go('/main'),
+        onTap: () => context.go('/lists'),
         child: Padding(
           padding: const EdgeInsets.only(left: 12),
           child: Image.asset(
