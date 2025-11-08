@@ -2,10 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_app/presentation/add_product/add_product_page.dart';
+
+import '../presentation/add_product/add_product_page.dart';
 import '../presentation/login/login_page.dart';
 import '../presentation/main/main_page.dart';
 import '../presentation/providers/auth_provider.dart';
+import '../presentation/notifications/notification_page.dart';
+import '../presentation/settings/settings_page.dart';
+
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -24,6 +28,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/product',
         builder: (context, state) => const AddEditProductPage(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationPage(),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsPage(),
       ),
     ],
     redirect: (context, state) {
