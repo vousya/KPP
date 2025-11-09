@@ -36,12 +36,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           
           final extra = state.extra as Map<String, dynamic>? ?? {};
           final listTitle = extra['title'] as String? ?? 'Shopping List';
-          final items = extra['items'] as List<ShoppingItem>? ?? [];
 
           return ShoppingListPage(
             listId: listId,
             listTitle: listTitle,
-            items: items,
           );
         },
       ),

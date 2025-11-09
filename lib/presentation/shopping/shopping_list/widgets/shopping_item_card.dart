@@ -1,26 +1,20 @@
-// lib/presentation/main/widgets/shopping_item_card.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../data/providers/shopping_lists_provider.dart';
 import 'shopping_item.dart';
 
-typedef ItemToggleCallback = void Function(ShoppingItem updated);
-typedef ItemActionCallback = void Function(ShoppingItem item);
-
-class ShoppingItemCard extends StatelessWidget {
+class ShoppingItemCard extends ConsumerWidget {
   final ShoppingItem item;
-  final ItemToggleCallback? onTogglePurchased;
-  final ItemActionCallback? onEdit;
-  final ItemActionCallback? onDelete;
+  final String listId;
 
   const ShoppingItemCard({
-    Key? key,
+    super.key,
     required this.item,
-    this.onTogglePurchased,
-    this.onEdit,
-    this.onDelete,
-  }) : super(key: key);
+    required this.listId,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       elevation: 0,
@@ -31,9 +25,8 @@ class ShoppingItemCard extends StatelessWidget {
           children: [
             Checkbox(
               value: item.isPurchased,
-              onChanged: (bool? newValue) {
-                final updated = item.copyWith(isPurchased: newValue ?? false);
-                if (onTogglePurchased != null) onTogglePurchased!(updated);
+              onChanged: (_) {
+                ref.read(shoppingListsProvider.notifier).toggleItem(listId, item.id);
               },
               activeColor: Colors.deepPurple,
             ),
@@ -46,8 +39,9 @@ class ShoppingItemCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      decoration:
-                          item.isPurchased ? TextDecoration.lineThrough : null,
+                      decoration: item.isPurchased
+                          ? TextDecoration.lineThrough
+                          : null,
                       color: item.isPurchased ? Colors.grey : Colors.black,
                     ),
                   ),
@@ -57,8 +51,9 @@ class ShoppingItemCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
-                      decoration:
-                          item.isPurchased ? TextDecoration.lineThrough : null,
+                      decoration: item.isPurchased
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                 ],
@@ -67,13 +62,13 @@ class ShoppingItemCard extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.edit_outlined, color: Colors.grey),
               onPressed: () {
-                if (onEdit != null) onEdit!(item);
+                // TODO: open edit dialog
               },
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.red),
               onPressed: () {
-                if (onDelete != null) onDelete!(item);
+                // TODO: delete item
               },
             ),
           ],

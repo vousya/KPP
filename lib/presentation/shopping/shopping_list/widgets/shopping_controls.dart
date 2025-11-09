@@ -1,23 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../shopping_lists/widgets/shopping_list.dart';
 
-class ShoppingControls extends StatelessWidget {
-  const ShoppingControls({super.key});
+final listFilterProvider =
+    StateProvider.family<ShoppingFilter, String>((ref, listId) {
+  return ShoppingFilter.all;
+});
+
+enum ShoppingFilter { all, purchased, unpurchased }
+
+class ShoppingControls extends ConsumerWidget {
+  final ShoppingList list;
+
+  const ShoppingControls({super.key, required this.list});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentFilter = ref.watch(listFilterProvider(list.id));
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Row(
                   children: [
-                    _TabButton(text: 'All', isSelected: true),
-                    SizedBox(width: 10),
-                    _TabButton(text: 'Purchased', isSelected: false),
+                    _TabButton(
+                      text: 'All',
+                      isSelected: currentFilter == ShoppingFilter.all,
+                      onTap: () => ref
+                          .read(listFilterProvider(list.id).notifier)
+                          .state = ShoppingFilter.all,
+                    ),
+                    const SizedBox(width: 10),
+                    _TabButton(
+                      text: 'Purchased',
+                      isSelected: currentFilter == ShoppingFilter.purchased,
+                      onTap: () => ref
+                          .read(listFilterProvider(list.id).notifier)
+                          .state = ShoppingFilter.purchased,
+                    ),
                   ],
                 ),
               ),
@@ -26,14 +51,14 @@ class ShoppingControls extends StatelessWidget {
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Search shopping items...',
-                    prefixIcon: Icon(Icons.search),
+                    prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: EdgeInsets.symmetric(vertical: 0),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
                   ),
                 ),
               ),
@@ -52,8 +77,8 @@ class ShoppingControls extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
             ),
           ),
@@ -66,23 +91,30 @@ class ShoppingControls extends StatelessWidget {
 class _TabButton extends StatelessWidget {
   final String text;
   final bool isSelected;
+  final VoidCallback? onTap;
 
-  const _TabButton({required this.text, required this.isSelected});
+  const _TabButton({
+    required this.text,
+    required this.isSelected,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.deepPurple : Colors.grey[200],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: isSelected ? Colors.white : Colors.black,
-          fontWeight:
-              isSelected ? FontWeight.bold : FontWeight.normal,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.deepPurple : Colors.grey[200],
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
       ),
     );

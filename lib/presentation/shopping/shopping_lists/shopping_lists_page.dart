@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'widgets/shopping_list_service.dart';
 import '../../../widgets/main_header.dart';
+import '../../../data/providers/filter_products_provider.dart';
 
-class ShoppingListsPage extends StatelessWidget {
+class ShoppingListsPage extends ConsumerWidget {
   const ShoppingListsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final shoppingLists = ShoppingService().getItems();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final shoppingLists = ref.watch(visibleListsProvider);
 
     return Scaffold(
       appBar: const MainHeader(),
@@ -25,7 +26,8 @@ class ShoppingListsPage extends StatelessWidget {
             ),
             elevation: 3,
             child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               title: Text(
                 list.title,
                 style: const TextStyle(
@@ -35,7 +37,6 @@ class ShoppingListsPage extends StatelessWidget {
               ),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
-                // Navigate using GoRouter with path parameter
                 context.push(
                   '/lists/${list.id}',
                   extra: {

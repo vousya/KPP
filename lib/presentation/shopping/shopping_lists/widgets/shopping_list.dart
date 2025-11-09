@@ -10,4 +10,16 @@ class ShoppingList {
     required this.title,
     required this.items,
   });
+
+  ShoppingList copyWith({
+    String? id,
+    String? title,
+    List<ShoppingItem>? items,
+  }) {
+    return ShoppingList(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      items: items ?? this.items,
+    );
+  }
 }

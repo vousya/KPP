@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../data/auth/auth_service.dart';
-import '../../../data/auth/validators/email_validator.dart';
-import '../../../data/auth/validators/password_validator.dart';
+import '../../../../data/auth/auth_service.dart';
+import '../../../../data/auth/validators/email_validator.dart';
+import '../../../../data/auth/validators/password_validator.dart';
 
 class EmailLoginForm extends ConsumerStatefulWidget {
   final Function(bool) setLoading;

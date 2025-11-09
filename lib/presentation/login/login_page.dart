@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'widgets/email_login_form.dart';
-import 'widgets/phone_login_form.dart';
-import 'widgets/google_login_form.dart';
+import 'widgets/forms/email_login_form.dart';
+import 'widgets/forms/phone_login_form.dart';
+import 'widgets/forms/google_login_form.dart';
 import 'widgets/login_header.dart';
 
 class LoginPage extends StatefulWidget {

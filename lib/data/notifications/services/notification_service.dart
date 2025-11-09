@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../mappers/notification_mapper.dart';
 import '../models/app_notification.dart';
-import 'notification_service_mock.dart';
+import '../../../mock_data/notification_service_mock.dart';
 
 class NotificationService {
   static final _db = FirebaseFirestore.instance;

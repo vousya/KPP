@@ -3,9 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../data/auth/auth_service.dart';
-import '../../../data/auth/phone/phone_auth.dart';
-import '../../../data/auth/validators/phone_validator.dart';
+import '../../../../data/auth/auth_service.dart';
+import '../../../../data/auth/phone/phone_auth.dart';
+import '../../../../data/auth/validators/phone_validator.dart';
 
 class PhoneLoginForm extends ConsumerStatefulWidget {
   final Function(bool) setLoading;

@@ -1,5 +1,5 @@
-import '../../shopping_list/widgets/shopping_item.dart';
-import 'shopping_list.dart';
+import '../presentation/shopping/shopping_list/widgets/shopping_item.dart';
+import '../presentation/shopping/shopping_lists/widgets/shopping_list.dart';
 
 final List<ShoppingList> mockedShoppingLists = [
   ShoppingList(
