@@ -1,22 +1,32 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../presentation/shopping/shopping_lists/widgets/shopping_list_service.dart';
+import '../services/shopping_list_service.dart';
 import '../../presentation/shopping/shopping_lists/widgets/shopping_list.dart';
+
+final shoppingServiceProvider = Provider((ref) => ShoppingService());
 
 final shoppingListsProvider =
     StateNotifierProvider<ShoppingListsNotifier, List<ShoppingList>>(
-  (ref) => ShoppingListsNotifier(),
+  (ref) => ShoppingListsNotifier(service: ref.watch(shoppingServiceProvider)),
 );
 
 class ShoppingListsNotifier extends StateNotifier<List<ShoppingList>> {
-  ShoppingListsNotifier() : super(ShoppingService.getItems());
+  final ShoppingService service;
+
+  ShoppingListsNotifier({required this.service}) : super([]) {
+    // Don't assign state here directly
+    loadItemsFromSupabase();
+  }
+
+  Future<void> loadItemsFromSupabase() async {
+    final items = await service.getItemsFromSupabase();
+    state = items!;
+  }
 
   void toggleItem(String listId, String itemId) {
     state = [
       for (final list in state)
         if (list.id == listId)
-          ShoppingList(
-            id: list.id,
-            title: list.title,
+          list.copyWith(
             items: [
               for (final item in list.items)
                 if (item.id == itemId)
@@ -30,3 +40,4 @@ class ShoppingListsNotifier extends StateNotifier<List<ShoppingList>> {
     ];
   }
 }
+

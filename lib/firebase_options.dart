@@ -70,6 +70,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '531984402363',
     projectId: 'listify-e896b',
     storageBucket: 'listify-e896b.firebasestorage.app',
+    androidClientId: '531984402363-0klcdcj613jbubfl3edll8gft8n5784j.apps.googleusercontent.com',
+    iosClientId: '531984402363-tdlekclu717rqssg70bprn67phvl3nkp.apps.googleusercontent.com',
     iosBundleId: 'com.example.myApp',
   );
+
 }

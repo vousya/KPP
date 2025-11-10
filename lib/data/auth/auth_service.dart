@@ -10,7 +10,10 @@ class AuthService {
 
   // Core
   Stream<User?> get authStateChanges => FirebaseAuth.instance.authStateChanges();
+
   User? get currentUser => FirebaseAuth.instance.currentUser;
+
+  String? get userId => FirebaseAuth.instance.currentUser?.uid;
 
   // Email
   Future<User?> signInWithEmail({required String email, required String password}) =>

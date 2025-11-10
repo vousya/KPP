@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/main_header.dart';
-
 import 'widgets/notification_header.dart';
 import 'widgets/notification_list.dart';
 
@@ -16,9 +15,9 @@ class NotificationPage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            NotificationHeader(),
-            SizedBox(height: 24),
+          children: [
+            const NotificationHeader(),
+            const SizedBox(height: 24),
             Expanded(
               child: NotificationList(),
             ),

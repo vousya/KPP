@@ -8,6 +8,13 @@
           "fileOutput": "android/app/google-services.json"
         }
       },
+      "ios": {
+        "default": {
+          "projectId": "listify-e896b",
+          "appId": "1:531984402363:ios:45c1142463da1c29a6669e",
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
       "dart": {
         "lib/firebase_options.dart": {
           "projectId": "listify-e896b",

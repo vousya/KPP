@@ -1,8 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/app_notification.dart';
 import '../models/notification_type.dart';
 
-// String → Enum
+/// String → Enum
 const notificationTypeFromString = {
   "reminder": NotificationType.reminder,
   "security": NotificationType.security,
@@ -11,33 +10,32 @@ const notificationTypeFromString = {
   "activity": NotificationType.activity,
 };
 
-// Enum → String
+/// Enum → String
 final notificationTypeToString = {
   for (var t in NotificationType.values) t: t.name,
 };
 
 class NotificationMapper {
-  // Convert Firestore document → AppNotification
-  static AppNotification fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
-    final data = doc.data()!;
-
+  /// Convert Supabase JSON → AppNotification
+  static AppNotification fromSupabase(Map<String, dynamic> json) {
     return AppNotification(
-      id: doc.id,
-      type: notificationTypeFromString[data['type']] ?? NotificationType.general,
-      title: data['title'] ?? "",
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      isRead: data['isRead'] ?? false,
+      id: json['id'] as String,
+      userId: json['userId'] as String? ?? "",
+      type: notificationTypeFromString[json['type']] ?? NotificationType.general,
+      title: json['title'] as String? ?? "",
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      isRead: json['isRead'] as bool? ?? false,
     );
   }
 
-  // Convert AppNotification → Firestore map
-  static Map<String, dynamic> toFirestore(AppNotification n) {
+  /// Convert AppNotification → Supabase JSON
+  static Map<String, dynamic> toSupabase(AppNotification n) {
     return {
+      'id': n.id,
+      'userId': n.userId,
       'type': notificationTypeToString[n.type],
       'title': n.title,
-      'createdAt': n.createdAt,
+      'createdAt': n.createdAt.toIso8601String(),
       'isRead': n.isRead,
     };
   }

@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import '../data/providers/auth_provider.dart';
 
-import '../presentation/shopping/shopping_list/widgets/shopping_item.dart';
-
 import '../presentation/shopping/add_product/add_product_page.dart';
 import '../presentation/login/login_page.dart';
 import '../presentation/shopping/shopping_list/shopping_list_page.dart';
