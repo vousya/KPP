@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../shopping_lists/widgets/shopping_list.dart';
+import '../widgets/add_edit_item_dialog.dart';
 
 final listFilterProvider =
     StateProvider.family<ShoppingFilter, String>((ref, listId) {
@@ -102,7 +102,14 @@ class _ShoppingControlsState extends ConsumerState<ShoppingControls> {
           Align(
             alignment: Alignment.centerRight,
             child: ElevatedButton.icon(
-              onPressed: () => context.go('/product'),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AddEditItemDialog(
+                    listId: widget.list.id,
+                  ),
+                );
+              },
               icon: const Icon(Icons.add),
               label: const Text('Add Item'),
               style: ElevatedButton.styleFrom(

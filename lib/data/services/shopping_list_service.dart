@@ -103,4 +103,37 @@ class ShoppingService {
   Future<void> deleteList(String id) async {
      await _firestore.collection('shopping_lists').doc(id).delete();
   }
+
+  Future<void> addItemToList(String listId, Map<String, dynamic> itemMap) async {
+    try {
+      print('\n[ShoppingService] ➕ ADDING item to list: "$listId"');
+      await _firestore
+          .collection('shopping_lists')
+          .doc(listId)
+          .update({
+        'items': FieldValue.arrayUnion([itemMap])
+      });
+      print('[ShoppingService] ✅ ADD ITEM SUCCESS');
+    } catch (e, stackTrace) {
+      print('[ShoppingService] 🔴 ADD ITEM ERROR: $e');
+      print('[ShoppingService] Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  Future<void> updateItemInList(String listId, List<Map<String, dynamic>> itemsMap) async {
+    try {
+      print('\n[ShoppingService] 🔄 UPDATING items in list: "$listId"');
+      print('[ShoppingService] Items count: ${itemsMap.length}');
+      await _firestore
+          .collection('shopping_lists')
+          .doc(listId)
+          .update({'items': itemsMap});
+      print('[ShoppingService] ✅ UPDATE ITEM SUCCESS');
+    } catch (e, stackTrace) {
+      print('[ShoppingService] 🔴 UPDATE ITEM ERROR: $e');
+      print('[ShoppingService] Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
 }

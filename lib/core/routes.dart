@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import '../data/providers/auth_provider.dart';
 
-import '../presentation/shopping/add_product/add_product_page.dart';
 import '../presentation/login/login_page.dart';
 import '../presentation/shopping/shopping_list/shopping_list_page.dart';
 import '../presentation/notifications/notification_page.dart';
@@ -40,10 +39,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             listTitle: listTitle,
           );
         },
-      ),
-      GoRoute(
-        path: '/product',
-        builder: (context, state) => const AddEditProductPage(),
       ),
       GoRoute(
         path: '/notifications',

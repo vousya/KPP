@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../data/providers/shopping_lists_provider.dart';
 import 'shopping_item.dart';
+import 'add_edit_item_dialog.dart';
 
 class ShoppingItemCard extends ConsumerWidget {
   final ShoppingItem item;
@@ -62,7 +63,13 @@ class ShoppingItemCard extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.edit_outlined, color: Colors.grey),
               onPressed: () {
-                // TODO: open edit dialog
+                showDialog(
+                  context: context,
+                  builder: (context) => AddEditItemDialog(
+                    listId: listId,
+                    item: item,
+                  ),
+                );
               },
             ),
             IconButton(

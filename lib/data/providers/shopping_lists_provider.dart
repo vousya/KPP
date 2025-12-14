@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/shopping_list_service.dart';
 import '../../presentation/shopping/shopping_lists/widgets/shopping_list.dart';
+import '../../presentation/shopping/shopping_list/widgets/shopping_item.dart';
 
 final shoppingServiceProvider = Provider((ref) => ShoppingService());
 
@@ -81,6 +82,108 @@ class ShoppingListsNotifier extends StateNotifier<List<ShoppingList>> {
       print('[ShoppingListsNotifier] ✅ TOGGLE SUCCESS');
     } catch (e, stackTrace) {
       print('[ShoppingListsNotifier] 🔴 TOGGLE ERROR: $e');
+      print('[ShoppingListsNotifier] Reverting state...');
+      state = previousState;
+      rethrow;
+    }
+  }
+
+  // --- ADD ITEM ---
+  Future<void> addItem(String listId, String title, String subtitle) async {
+    final previousState = state;
+    final listIndex = state.indexWhere((l) => l.id == listId);
+    if (listIndex == -1) {
+      print('[ShoppingListsNotifier] ⚠️ List not found: $listId');
+      return;
+    }
+
+    final list = state[listIndex];
+    final newItemId = DateTime.now().millisecondsSinceEpoch.toString();
+    final newItem = ShoppingItem(
+      id: newItemId,
+      title: title,
+      subtitle: subtitle,
+      isPurchased: false,
+    );
+
+    // Optimistic update
+    final updatedItems = [...list.items, newItem];
+    final updatedList = list.copyWith(items: updatedItems);
+
+    state = [
+      for (final l in state)
+        if (l.id == listId) updatedList else l
+    ];
+
+    try {
+      final itemMap = {
+        'id': newItemId,
+        'title': title,
+        'subtitle': subtitle,
+        'isPurchased': false,
+      };
+      await service.addItemToList(listId, itemMap);
+      print('[ShoppingListsNotifier] ✅ ADD ITEM SUCCESS');
+    } catch (e) {
+      print('[ShoppingListsNotifier] 🔴 ADD ITEM ERROR: $e');
+      print('[ShoppingListsNotifier] Reverting state...');
+      state = previousState;
+      rethrow;
+    }
+  }
+
+  // --- UPDATE ITEM ---
+  Future<void> updateItem(
+    String listId,
+    String itemId,
+    String title,
+    String subtitle,
+  ) async {
+    final previousState = state;
+    final listIndex = state.indexWhere((l) => l.id == listId);
+    if (listIndex == -1) {
+      print('[ShoppingListsNotifier] ⚠️ List not found: $listId');
+      return;
+    }
+
+    final list = state[listIndex];
+    final itemIndex = list.items.indexWhere((item) => item.id == itemId);
+    if (itemIndex == -1) {
+      print('[ShoppingListsNotifier] ⚠️ Item not found: $itemId');
+      return;
+    }
+
+    final existingItem = list.items[itemIndex];
+
+    // Optimistic update
+    final updatedItems = list.items.map((item) {
+      return item.id == itemId
+          ? ShoppingItem(
+              id: item.id,
+              title: title,
+              subtitle: subtitle,
+              isPurchased: item.isPurchased,
+            )
+          : item;
+    }).toList();
+    final updatedList = list.copyWith(items: updatedItems);
+
+    state = [
+      for (final l in state)
+        if (l.id == listId) updatedList else l
+    ];
+
+    try {
+      final itemsMap = updatedList.items.map((item) => {
+        'id': item.id,
+        'title': item.title,
+        'subtitle': item.subtitle,
+        'isPurchased': item.isPurchased,
+      }).toList();
+      await service.updateItemInList(listId, itemsMap);
+      print('[ShoppingListsNotifier] ✅ UPDATE ITEM SUCCESS');
+    } catch (e) {
+      print('[ShoppingListsNotifier] 🔴 UPDATE ITEM ERROR: $e');
       print('[ShoppingListsNotifier] Reverting state...');
       state = previousState;
       rethrow;
