@@ -74,10 +74,30 @@ class ShoppingService {
   }
 
   Future<void> updateList(ShoppingList list) async {
-    final itemsMap = list.items.map((item) => {
-      'id': item.id, 'title': item.title, 'subtitle': item.subtitle, 'isPurchased': item.isPurchased,
-    }).toList();
-    await _firestore.collection('shopping_lists').doc(list.id).update({'items': itemsMap});
+    try {
+      print('\n[ShoppingService] 🔄 UPDATING list: "${list.id}"');
+      print('[ShoppingService] Items count: ${list.items.length}');
+      
+      final itemsMap = list.items.map((item) => {
+        'id': item.id,
+        'title': item.title,
+        'subtitle': item.subtitle,
+        'isPurchased': item.isPurchased,
+      }).toList();
+      
+      print('[ShoppingService] Items map: $itemsMap');
+      
+      await _firestore
+          .collection('shopping_lists')
+          .doc(list.id)
+          .update({'items': itemsMap});
+      
+      print('[ShoppingService] ✅ UPDATE SUCCESS');
+    } catch (e, stackTrace) {
+      print('[ShoppingService] 🔴 UPDATE ERROR: $e');
+      print('[ShoppingService] Stack trace: $stackTrace');
+      rethrow;
+    }
   }
   
   Future<void> deleteList(String id) async {

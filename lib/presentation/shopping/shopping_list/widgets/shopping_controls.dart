@@ -8,16 +8,46 @@ final listFilterProvider =
   return ShoppingFilter.all;
 });
 
+final searchQueryProvider =
+    StateProvider.family<String, String>((ref, listId) {
+  return '';
+});
+
 enum ShoppingFilter { all, purchased, unpurchased }
 
-class ShoppingControls extends ConsumerWidget {
+class ShoppingControls extends ConsumerStatefulWidget {
   final ShoppingList list;
 
   const ShoppingControls({super.key, required this.list});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final currentFilter = ref.watch(listFilterProvider(list.id));
+  ConsumerState<ShoppingControls> createState() => _ShoppingControlsState();
+}
+
+class _ShoppingControlsState extends ConsumerState<ShoppingControls> {
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentFilter = ref.watch(listFilterProvider(widget.list.id));
+    final searchQuery = ref.watch(searchQueryProvider(widget.list.id));
+
+    // Sync controller with provider
+    if (_searchController.text != searchQuery) {
+      _searchController.text = searchQuery;
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -32,7 +62,7 @@ class ShoppingControls extends ConsumerWidget {
                       text: 'All',
                       isSelected: currentFilter == ShoppingFilter.all,
                       onTap: () => ref
-                          .read(listFilterProvider(list.id).notifier)
+                          .read(listFilterProvider(widget.list.id).notifier)
                           .state = ShoppingFilter.all,
                     ),
                     const SizedBox(width: 10),
@@ -40,7 +70,7 @@ class ShoppingControls extends ConsumerWidget {
                       text: 'Purchased',
                       isSelected: currentFilter == ShoppingFilter.purchased,
                       onTap: () => ref
-                          .read(listFilterProvider(list.id).notifier)
+                          .read(listFilterProvider(widget.list.id).notifier)
                           .state = ShoppingFilter.purchased,
                     ),
                   ],
@@ -49,6 +79,10 @@ class ShoppingControls extends ConsumerWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    ref.read(searchQueryProvider(widget.list.id).notifier).state = value;
+                  },
                   decoration: InputDecoration(
                     hintText: 'Search shopping items...',
                     prefixIcon: const Icon(Icons.search),

@@ -21,13 +21,23 @@ class ShoppingListPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final list = ref.watch(shoppingListsProvider).firstWhere((l) => l.id == listId);
     final filter = ref.watch(listFilterProvider(listId));
+    final searchQuery = ref.watch(searchQueryProvider(listId));
 
     // Apply filter
-    final visibleItems = switch (filter) {
+    var visibleItems = switch (filter) {
       ShoppingFilter.all => list.items,
       ShoppingFilter.purchased => list.items.where((i) => i.isPurchased).toList(),
       ShoppingFilter.unpurchased => list.items.where((i) => !i.isPurchased).toList(),
     };
+
+    // Apply search query
+    if (searchQuery.isNotEmpty) {
+      final query = searchQuery.toLowerCase();
+      visibleItems = visibleItems.where((item) {
+        return item.title.toLowerCase().contains(query) ||
+            item.subtitle.toLowerCase().contains(query);
+      }).toList();
+    }
 
 
     return Scaffold(

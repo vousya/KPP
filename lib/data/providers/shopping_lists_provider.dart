@@ -47,9 +47,23 @@ class ShoppingListsNotifier extends StateNotifier<List<ShoppingList>> {
   Future<void> toggleItem(String listId, String itemId) async {
     final previousState = state;
     final listIndex = state.indexWhere((l) => l.id == listId);
-    if (listIndex == -1) return;
+    if (listIndex == -1) {
+      print('[ShoppingListsNotifier] ⚠️ List not found: $listId');
+      return;
+    }
 
     final list = state[listIndex];
+    final itemIndex = list.items.indexWhere((item) => item.id == itemId);
+    if (itemIndex == -1) {
+      print('[ShoppingListsNotifier] ⚠️ Item not found: $itemId');
+      return;
+    }
+
+    final currentValue = list.items[itemIndex].isPurchased;
+    print('\n[ShoppingListsNotifier] 🔄 TOGGLING item: $itemId in list: $listId');
+    print('[ShoppingListsNotifier] Current isPurchased: $currentValue');
+
+    // Optimistic update
     final updatedItems = list.items.map((item) {
       return item.id == itemId
           ? item.copyWith(isPurchased: !item.isPurchased)
@@ -64,8 +78,12 @@ class ShoppingListsNotifier extends StateNotifier<List<ShoppingList>> {
 
     try {
       await service.updateList(updatedList);
-    } catch (e) {
+      print('[ShoppingListsNotifier] ✅ TOGGLE SUCCESS');
+    } catch (e, stackTrace) {
+      print('[ShoppingListsNotifier] 🔴 TOGGLE ERROR: $e');
+      print('[ShoppingListsNotifier] Reverting state...');
       state = previousState;
+      rethrow;
     }
   }
 }
