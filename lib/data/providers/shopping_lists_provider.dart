@@ -13,24 +13,38 @@ class ShoppingListsNotifier extends StateNotifier<List<ShoppingList>> {
   final ShoppingService service;
 
   ShoppingListsNotifier({required this.service}) : super([]) {
-    loadLists(); // Load immediately on start
+    loadLists(); 
   }
 
-  // NEW: Call the Future method
   Future<void> loadLists() async {
     final lists = await service.fetchLists();
     state = lists;
   }
 
-  // Create
+  // --- CREATE ---
   Future<void> createList(String title) async {
     await service.createList(title);
-    await loadLists(); // Refresh data after creating
+    await loadLists(); 
   }
 
-  // Update
+  // --- DELETE (NEW) ---
+  Future<void> deleteList(String id) async {
+    // 1. Optimistic Update: Remove from UI immediately
+    final previousState = state;
+    state = state.where((list) => list.id != id).toList();
+
+    try {
+      // 2. Call API
+      await service.deleteList(id);
+    } catch (e) {
+      // 3. Revert if API fails
+      state = previousState;
+      print("Delete failed: $e");
+    }
+  }
+
+  // --- UPDATE ---
   Future<void> toggleItem(String listId, String itemId) async {
-    // 1. Optimistic Update (Update UI immediately)
     final previousState = state;
     final listIndex = state.indexWhere((l) => l.id == listId);
     if (listIndex == -1) return;
@@ -48,11 +62,9 @@ class ShoppingListsNotifier extends StateNotifier<List<ShoppingList>> {
         if (l.id == listId) updatedList else l
     ];
 
-    // 2. Call API
     try {
       await service.updateList(updatedList);
     } catch (e) {
-      // Revert if API fails
       state = previousState;
     }
   }
