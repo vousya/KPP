@@ -136,4 +136,20 @@ class ShoppingService {
       rethrow;
     }
   }
+
+  Future<void> deleteItemFromList(String listId, List<Map<String, dynamic>> itemsMap) async {
+    try {
+      print('\n[ShoppingService] 🗑️ DELETING item from list: "$listId"');
+      print('[ShoppingService] Items count after deletion: ${itemsMap.length}');
+      await _firestore
+          .collection('shopping_lists')
+          .doc(listId)
+          .update({'items': itemsMap});
+      print('[ShoppingService] ✅ DELETE ITEM SUCCESS');
+    } catch (e, stackTrace) {
+      print('[ShoppingService] 🔴 DELETE ITEM ERROR: $e');
+      print('[ShoppingService] Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
 }

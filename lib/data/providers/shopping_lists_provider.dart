@@ -189,4 +189,48 @@ class ShoppingListsNotifier extends StateNotifier<List<ShoppingList>> {
       rethrow;
     }
   }
+
+  // --- DELETE ITEM ---
+  Future<void> deleteItem(String listId, String itemId) async {
+    final previousState = state;
+    final listIndex = state.indexWhere((l) => l.id == listId);
+    if (listIndex == -1) {
+      print('[ShoppingListsNotifier] ⚠️ List not found: $listId');
+      return;
+    }
+
+    final list = state[listIndex];
+    final itemIndex = list.items.indexWhere((item) => item.id == itemId);
+    if (itemIndex == -1) {
+      print('[ShoppingListsNotifier] ⚠️ Item not found: $itemId');
+      return;
+    }
+
+    print('\n[ShoppingListsNotifier] 🗑️ DELETING item: $itemId from list: $listId');
+
+    // Optimistic update
+    final updatedItems = list.items.where((item) => item.id != itemId).toList();
+    final updatedList = list.copyWith(items: updatedItems);
+
+    state = [
+      for (final l in state)
+        if (l.id == listId) updatedList else l
+    ];
+
+    try {
+      final itemsMap = updatedList.items.map((item) => {
+        'id': item.id,
+        'title': item.title,
+        'subtitle': item.subtitle,
+        'isPurchased': item.isPurchased,
+      }).toList();
+      await service.deleteItemFromList(listId, itemsMap);
+      print('[ShoppingListsNotifier] ✅ DELETE ITEM SUCCESS');
+    } catch (e) {
+      print('[ShoppingListsNotifier] 🔴 DELETE ITEM ERROR: $e');
+      print('[ShoppingListsNotifier] Reverting state...');
+      state = previousState;
+      rethrow;
+    }
+  }
 }
