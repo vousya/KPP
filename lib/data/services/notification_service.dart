@@ -1,77 +1,87 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../notifications/mappers/notification_mapper.dart';
 import '../notifications/models/app_notification.dart';
 
 class NotificationService {
-  final SupabaseClient _supabase;
-  static const _table = 'notifications';
+  // Connect to 'listifyprod'
+  final FirebaseFirestore _firestore = FirebaseFirestore.instanceFor(
+    app: Firebase.app(),
+    databaseId: 'listifyprod',
+  );
+  
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  NotificationService({SupabaseClient? client})
-      : _supabase = client ?? Supabase.instance.client;
-
-  Future<List<AppNotification>> getNotifications(String userId) async {
+  // ==========================================
+  // R - READ (One-time Fetch)
+  // ==========================================
+  Future<List<AppNotification>> fetchNotifications() async {
+    final userId = _auth.currentUser?.uid;
+    print('\n[NotificationService] 🔍 FETCHING notifications for: "$userId"');
     
-    final response = await _supabase
-        .from(_table)
-        .select()
-        .eq('userId', userId)
-        .order('createdAt', ascending: false);
-
-    if (response == null) return [];
-
-    if (response is List) {
-      return response.map((e) {
-        final Map<String, dynamic> json =
-            (e is Map) ? Map<String, dynamic>.from(e) : <String, dynamic>{};
-        return NotificationMapper.fromSupabase(json);
-      }).toList();
+    if (userId == null) {
+      print('[NotificationService] ⚠️ User ID is null.');
+      return [];
     }
 
-    throw Exception('Unexpected response type from Supabase: ${response.runtimeType}');
+    try {
+      // Use .get() instead of .snapshots()
+      final snapshot = await _firestore
+          .collection('notifications')
+          .where('userId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      print('[NotificationService] 📄 Documents found: ${snapshot.docs.length}');
+      
+      return snapshot.docs
+          .map((doc) => NotificationMapper.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      print('[NotificationService] 🔴 FETCH ERROR: $e');
+      
+      // If Firestore asks for an Index, it will print the link here
+      if (e.toString().contains('index')) {
+         print('[NotificationService] 💡 TIP: Click the link in the error above to create the index!');
+      }
+      return [];
+    }
   }
 
-  RealtimeChannel subscribeNotifications(
-    String userId,
-    void Function(AppNotification) onInsert,
-  ) {
-    final channel = _supabase.channel('notifications-user-$userId');
-
-    channel.on(
-      RealtimeListenTypes.postgresChanges,
-      ChannelFilter(
-        event: 'INSERT',
-        schema: 'public',
-        table: _table,
-        filter: 'userId=eq.$userId',
-      ),
-      (payload, [ref]) {
-        final newObj = payload['new'];
-        if (newObj is Map) {
-          final Map<String, dynamic> json = Map<String, dynamic>.from(newObj);
-          onInsert(NotificationMapper.fromSupabase(json));
-        } else {
-          try {
-            final Map<String, dynamic> json = Map<String, dynamic>.from(newObj);
-            onInsert(NotificationMapper.fromSupabase(json));
-          } catch (_) {
-          }
-        }
-      },
-    );
-
-    channel.subscribe();
-    return channel;
-  }
-
+  // ==========================================
+  // C - CREATE
+  // ==========================================
   Future<void> addNotification(AppNotification n) async {
-    await _supabase.from(_table).insert(NotificationMapper.toSupabase(n));
+    try {
+      await _firestore.collection('notifications').add(NotificationMapper.toFirestore(n));
+      print('[NotificationService] ✅ Notification added');
+    } catch (e) {
+      print('[NotificationService] 🔴 Add failed: $e');
+    }
   }
 
+  // ==========================================
+  // U - UPDATE (Mark as Read)
+  // ==========================================
+  Future<void> markAsRead(String id) async {
+    try {
+      await _firestore.collection('notifications').doc(id).update({'isRead': true});
+      print('[NotificationService] ✅ Marked as read: $id');
+    } catch (e) {
+      print('[NotificationService] 🔴 Update failed: $e');
+    }
+  }
+
+  // ==========================================
+  // D - DELETE
+  // ==========================================
   Future<void> deleteNotification(String id) async {
-    await _supabase.from(_table).delete().eq('id', id);
-  }
-
-  Future<void> markAsRead(String id, {bool isRead = true}) async {
-    await _supabase.from(_table).update({'isRead': isRead}).eq('id', id);
+    try {
+      await _firestore.collection('notifications').doc(id).delete();
+      print('[NotificationService] ✅ Deleted: $id');
+    } catch (e) {
+      print('[NotificationService] 🔴 Delete failed: $e');
+    }
   }
 }

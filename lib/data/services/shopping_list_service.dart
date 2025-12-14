@@ -1,76 +1,86 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart'; // Add this import
 import '../../presentation/shopping/shopping_lists/widgets/shopping_list.dart';
 import '../../presentation/shopping/shopping_list/widgets/shopping_item.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ShoppingService {
-  final SupabaseClient supabase;
+  // CHANGE: Connect to 'listifyprod'
+  final FirebaseFirestore _firestore = FirebaseFirestore.instanceFor(
+    app: Firebase.app(),
+    databaseId: 'listifyprod',
+  );
+  
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  ShoppingService({SupabaseClient? client})
-      : supabase = client ?? Supabase.instance.client;
+  String get _userId => _auth.currentUser?.uid ?? '';
 
-  Future<List<ShoppingList>?> getItemsFromSupabase() async {
+  // ... Keep the rest of your methods (fetchLists, createList, etc.) exactly the same
+  // ... just copy the logic we wrote in the previous step.
+  
+  // For reference, here is the fetchLists method again so you can verify:
+  Future<List<ShoppingList>> fetchLists() async {
+    final uid = _userId;
+    print('\n[ShoppingService] 🔍 FETCHING lists from "listifyprod" for: "$uid"');
+
+    if (uid.isEmpty) return [];
+
     try {
-      final response = await supabase.from('shopping_lists').select();
-      print('Raw response from Supabase: $response');
+      final snapshot = await _firestore
+          .collection('shopping_lists')
+          .where('userId', isEqualTo: uid)
+          .get();
 
-      if (response == null) {
-        print('Supabase returned null!');
-        return [];
-      }
-
-      final data = response as List<dynamic>;
-      print('Number of lists fetched: ${data.length}');
-
-      return data.map((doc) {
-        print('Processing doc: $doc');
-
-        // Remove jsonDecode — items is already a List
-        final itemsData = doc['items'] as List<dynamic>;
-        final items = itemsData.map((item) {
-          print('Processing item: $item');
-          return ShoppingItem(
-            id: item['id'],
-            title: item['title'],
-            subtitle: item['subtitle'],
-            isPurchased: item['isPurchased'],
-          );
-        }).toList();
-
-        return ShoppingList(
-          id: doc['id'],
-          title: doc['title'],
-          items: items,
-        );
-      }).toList();
+      print('[ShoppingService] 📄 Documents found: ${snapshot.docs.length}');
+      return snapshot.docs.map((doc) => _mapDocToList(doc)).toList();
     } catch (e) {
-      print('Error fetching shopping lists: $e');
-      return null;
+      print('[ShoppingService] 🔴 FETCH ERROR: $e');
+      throw e;
     }
   }
 
-  Stream<List<ShoppingList>> subscribeToItems() {
-    return supabase
-        .from('shopping_lists')
-        .stream(primaryKey: ['id'])
-        .map((event) {
-      return event.map((doc) {
+  // ... helper _mapDocToList ...
+  ShoppingList _mapDocToList(DocumentSnapshot doc) {
+    try {
+      final data = doc.data() as Map<String, dynamic>;
+      final itemsData = data['items'] as List<dynamic>? ?? [];
 
-        final itemsData = doc['items'] as List<dynamic>;
-        final items = itemsData.map((item) {
-          return ShoppingItem(
-            id: item['id'],
-            title: item['title'],
-            subtitle: item['subtitle'],
-            isPurchased: item['isPurchased'],
-          );
-        }).toList();
-
-        return ShoppingList(
-          id: doc['id'],
-          title: doc['title'],
-          items: items,
+      final items = itemsData.map((item) {
+        final map = item as Map<String, dynamic>;
+        return ShoppingItem(
+          id: map['id'] ?? '',
+          title: map['title'] ?? '',
+          subtitle: map['subtitle'] ?? '',
+          isPurchased: map['isPurchased'] ?? false,
         );
       }).toList();
+
+      return ShoppingList(
+        id: doc.id,
+        title: data['title'] ?? '',
+        items: items,
+      );
+    } catch (e) {
+      return ShoppingList(id: doc.id, title: 'Error List', items: []);
+    }
+  }
+  
+  // ... Include createList, updateList, deleteList from previous step ...
+  Future<void> createList(String title) async {
+    if (_userId.isEmpty) return;
+    await _firestore.collection('shopping_lists').add({
+      'title': title, 'userId': _userId, 'items': [],
     });
+  }
+
+  Future<void> updateList(ShoppingList list) async {
+    final itemsMap = list.items.map((item) => {
+      'id': item.id, 'title': item.title, 'subtitle': item.subtitle, 'isPurchased': item.isPurchased,
+    }).toList();
+    await _firestore.collection('shopping_lists').doc(list.id).update({'items': itemsMap});
+  }
+  
+  Future<void> deleteList(String id) async {
+     await _firestore.collection('shopping_lists').doc(id).delete();
   }
 }

@@ -1,5 +1,6 @@
 // lib/presentation/notifications/widgets/notification_tile.dart
 import 'package:flutter/material.dart';
+// Check these two imports match your file structure:
 import '../../../data/notifications/models/notification_type.dart';
 import '../../../data/notifications/models/app_notification.dart';
 
@@ -26,7 +27,6 @@ class NotificationTile extends StatelessWidget {
           fontWeight: isUnread ? FontWeight.w600 : FontWeight.normal,
         ),
       ),
-      // subtitle removed for now
       trailing: isUnread
           ? const Icon(Icons.circle, color: Colors.blue, size: 10)
           : null,
@@ -34,7 +34,6 @@ class NotificationTile extends StatelessWidget {
     );
   }
 
-  // Map NotificationType → Material icon
   IconData _icon(NotificationType type) {
     switch (type) {
       case NotificationType.reminder:
@@ -50,7 +49,6 @@ class NotificationTile extends StatelessWidget {
     }
   }
 
-  // Map NotificationType → avatar background color
   Color _bgColor(NotificationType type) {
     switch (type) {
       case NotificationType.reminder:
