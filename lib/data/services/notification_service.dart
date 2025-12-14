@@ -70,6 +70,36 @@ class NotificationService {
       print('[NotificationService] ✅ Marked as read: $id');
     } catch (e) {
       print('[NotificationService] 🔴 Update failed: $e');
+      rethrow;
+    }
+  }
+
+  // ==========================================
+  // U - UPDATE (Mark All as Read)
+  // ==========================================
+  Future<void> markAllAsRead() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      print('[NotificationService] ⚠️ User ID is null.');
+      return;
+    }
+
+    try {
+      final snapshot = await _firestore
+          .collection('notifications')
+          .where('userId', isEqualTo: userId)
+          .where('isRead', isEqualTo: false)
+          .get();
+
+      final batch = _firestore.batch();
+      for (var doc in snapshot.docs) {
+        batch.update(doc.reference, {'isRead': true});
+      }
+      await batch.commit();
+      print('[NotificationService] ✅ Marked all as read: ${snapshot.docs.length} notifications');
+    } catch (e) {
+      print('[NotificationService] 🔴 Mark all as read failed: $e');
+      rethrow;
     }
   }
 

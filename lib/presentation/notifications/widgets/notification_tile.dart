@@ -6,7 +6,13 @@ import '../../../data/notifications/models/app_notification.dart';
 
 class NotificationTile extends StatelessWidget {
   final AppNotification notification;
-  const NotificationTile({Key? key, required this.notification}) : super(key: key);
+  final VoidCallback? onTap;
+
+  const NotificationTile({
+    Key? key,
+    required this.notification,
+    this.onTap,
+  }) : super(key: key);
 
   bool get isUnread => !notification.isRead;
 
@@ -31,6 +37,7 @@ class NotificationTile extends StatelessWidget {
           ? const Icon(Icons.circle, color: Colors.blue, size: 10)
           : null,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      onTap: onTap,
     );
   }
 
