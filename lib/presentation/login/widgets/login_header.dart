@@ -69,7 +69,7 @@ class LoginHeader extends StatelessWidget {
                 margin: const EdgeInsets.only(top: 50),
                 child: const Center(
                   child: Text(
-                    "Login",
+                    "Looooooooogin",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 40,
